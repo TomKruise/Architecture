@@ -1,0 +1,165 @@
+docker run --name mongo -v /Users/tom/MyDir/Docker/DockerContainers/mongo/data:/data -p 27017:27017 -d mongo:4.0
+docker run -itd --name ubuntu -v/Users/tom/MyDir/Docker/DockerContainers/ubuntu/tom:/tom ubuntu:16.04
+
+
+{
+  "experimental": false,
+  "debug": true,
+  "registry-mirrors": [
+    "https://vcvpiw8x.mirror.aliyuncs.com",
+    "http://hub-mirror.c.163.com",
+    "https://reg-mirror.qiniu.com"
+  ],
+  "dns" : [
+    "114.114.114.114",
+    "8.8.8.8"
+  ]
+}
+
+# docker run -p 6379:6379 -m 512M --memory-swap -1 --name redis -v /Users/tom/MyDir/Docker/DockerContainers/redis/etc/redis/redis.conf:/etc/redis/redis.conf  -v /Users/tom/MyDir/Docker/DockerContainers/redis/data:/data -d redis:6.2.6 redis-server /etc/redis/redis.conf --appendonly yes
+# docker run --net host -m 512M --memory-swap -1 --name redis-host -v /Users/tom/MyDir/Docker/DockerContainers/redis/etc/redis/redis.conf:/etc/redis/redis.conf  -v /Users/tom/MyDir/Docker/DockerContainers/redis/data:/data -d redis:6.2.6 redis-server /etc/redis/redis.conf --appendonly yes
+
+–memory=”300m” –memory-swap=”1g” 的含义为：
+容器可以使用 300M 的物理内存，并且可以使用 700M(1G -300M) 的 swap。–memory-swap 居然是容器可以使用的物理内存和可以使用的 swap 之和！
+ 
+把 --memory-swap 设置为 0 和不设置是一样的，此时如果设置了 --memory，容器可以使用的 swap 大小为 --memory 值的两倍。
+ 
+如果--memory-swap 的值和--memory 相同，则容器不能使用 swap。
+
+docker run -p 3306:3306 --name mysql \
+-v /Users/tom/MyDir/Docker/DockerContainers/mysql/etc/mysql:/etc/mysql \
+-v /Users/tom/MyDir/Docker/DockerContainers/mysql/var/log/mysql:/var/log/mysql \
+-v /Users/tom/MyDir/Docker/DockerContainers/mysql/var/lib/mysql:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=root \
+-d mysql:5.7.36
+
+mac下 docker 实际是在vm里又加了一层，因此需要进入 vm 才能进行操作
+
+VM 的位置存在于&nbsp;~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/Docker.qcow2 ，但是我们实际在这里面也找不到对应的镜像或者容器
+
+执行这段代码进入 vm
+screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty
+
+有些mac中并没有tty文件
+docker run -it --name docker_vm --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
+
+然后你就可以进入docker的目录了
+cd /var/lib/docker
+
+
+docker run -d -p 80:80  \
+              -p 443:443  \
+              -m 32M --memory-swap -1\
+ --name nginx \
+ -v /Users/tom/MyDir/Docker/DockerContainers/nginx/usr/share/nginx/html:/usr/share/nginx/html \
+ -v /Users/tom/MyDir/Docker/DockerContainers/nginx/etc/nginx:/etc/nginx \
+ -v /Users/tom/MyDir/Docker/DockerContainers/nginx/var/log/nginx:/var/log/nginx \
+ nginx:1.21.3
+
+openssl genrsa -des3 -out server.key 2048
+openssl req -new -key server.key -out server.csr
+openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+openssl rsa -in server.key -out server_unsecure.key
+接下来你只需要在nginx里面使用新的test_unsecure.key即可使用https连接了
+
+#  docker run -d -p 5672:5672 -p 15672:15672 --name rabbitmq rabbitmq:3.9.11-management
+
+#  docker run --name mongo -v /Users/tom/MyDir/Docker/DockerContainers/mongo/data:/data -p 27017:27017 -d mongo:4.0
+
+# docker create --name redis-node01 --net host -v /Users/tom/MyDir/Docker/DockerContainers/redis-node01/etc/redis/redis.conf:/etc/redis/redis.conf -v /Users/tom/MyDir/Docker/DockerContainers/redis-node01/data:/data redis:6.2.6 redis-server /etc/redis/redis.conf --cluster-enabled yes --cluster-config-file nodes-node-01.conf --port 6379
+# docker create --name redis-node02 --net host -v /Users/tom/MyDir/Docker/DockerContainers/redis-node02/etc/redis/redis.conf:/etc/redis/redis.conf -v /Users/tom/MyDir/Docker/DockerContainers/redis-node02/data:/data redis:6.2.6 redis-server /etc/redis/redis.conf --cluster-enabled yes --cluster-config-file nodes-node-02.conf --port 6380
+# docker create --name redis-node03 --net host -v /Users/tom/MyDir/Docker/DockerContainers/redis-node03/etc/redis/redis.conf:/etc/redis/redis.conf -v /Users/tom/MyDir/Docker/DockerContainers/redis-node03/data:/data redis:6.2.6 redis-server /etc/redis/redis.conf --cluster-enabled yes --cluster-config-file nodes-node-03.conf --port 6381
+
+# docker run --net host --name redis-node01 -v /Users/tom/MyDir/Docker/DockerContainers/redis-node01/etc/redis/redis.conf:/etc/redis/redis.conf  -v /Users/tom/MyDir/Docker/DockerContainers/redis-node01/data:/data -d redis:6.2.6 redis-server /etc/redis/redis.conf --appendonly yes --cluster-enabled yes --cluster-config-file nodes-node-01.conf --port 6379
+# docker run --net host --name redis-node02 -v /Users/tom/MyDir/Docker/DockerContainers/redis-node02/etc/redis/redis.conf:/etc/redis/redis.conf  -v /Users/tom/MyDir/Docker/DockerContainers/redis-node02/data:/data -d redis:6.2.6 redis-server /etc/redis/redis.conf --appendonly yes --cluster-enabled yes --cluster-config-file nodes-node-02.conf --port 6380
+# docker run --net host --name redis-node03 -v /Users/tom/MyDir/Docker/DockerContainers/redis-node03/etc/redis/redis.conf:/etc/redis/redis.conf  -v /Users/tom/MyDir/Docker/DockerContainers/redis-node03/data:/data -d redis:6.2.6 redis-server /etc/redis/redis.conf --appendonly yes --cluster-enabled yes --cluster-config-file nodes-node-03.conf --port 6381
+
+
+# docker start redis-node01 redis-node02 redis-node03
+
+# docker exec -it redis-node01 /bin/bash
+
+#组建集群
+# redis-cli --cluster create 10.100.101.138:6379 10.100.101.138:6380 10.100.101.138:6381 --cluster-replicas 0
+# redis-cli --cluster create 127.0.0.1:6379 127.0.0.1:6380 127.0.0.1:6381 --cluster-replicas 0
+
+# docker create -p 9876:9876 --name rocketmq-server -e "JAVA_OPT_EXT=-server -Xms64m -Xmx64m -Xmn64m" -e "JAVA_OPTS=-Duser.home=/opt" -v /Users/tom/MyDir/Docker/DockerContainers/rocketmq/server/logs:/opt/logs -v /Users/tom/MyDir/Docker/DockerContainers/rocketmq/server/store:/opt/store foxiswho/rocketmq:server-4.3.2
+
+# docker create -p 10911:10911 -p 10909:10909 --name rocketmq-broker -e "JAVA_OPTS=-Duser.home=/opt" -e "JAVA_OPT_EXT=-server -Xms64m -Xmx64m -Xmn64m" -v /Users/tom/MyDir/Docker/DockerContainers/rocketmq/broker/etc/rocketmq/broker.conf:/etc/rocketmq/broker.conf -v /Users/tom/MyDir/Docker/DockerContainers/rocketmq/broker/logs:/opt/logs -v /Users/tom/MyDir/Docker/DockerContainers/rocketmq/broker/store:/opt/store foxiswho/rocketmq:broker-4.3.2
+
+# docker start rocketmq-server rocketmq-broker
+
+# #创建并启动可视化容器
+# docker run --name rocketmq-console -e "JAVA_OPTS=-Drocketmq.namesrv.addr=10.100.101.138:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false" -p 8082:8080 -t styletang/rocketmq-console-ng:1.0.0
+
+# 创建tracker容器
+# docker run -d --network=host --name tracker -v /Users/tom/MyDir/Docker/DockerContainers/fastdfs/var/fdfs/tracker:/var/fdfs delron/fastdfs tracker
+
+# 创建storage容器
+# docker run -d --network=host --name storage -e TRACKER_SERVER=127.0.0.1:22122 -v /Users/tom/MyDir/Docker/DockerContainers/fastdfs/var/fdfs/storage:/var/fdfs -e GROUP_NAME=group1 delron/fastdfs storage
+
+# ifconfig en0:0 192.168.31.60 netmask 255.255.255.0 up
+# ifconfig en0:1 192.168.31.61 netmask 255.255.255.0 up
+
+# docker run -itd -p 192.168.31.60:222:22 --name ubuntu-ssh ubuntu:14.04
+
+# docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e ES_JAVA_OPTS="-Xms64m -Xmx128m" elasticsearch:7.6.2
+
+docker network create redis --subnet 172.38.0.0/16
+
+for port in $(seq 1 6); \
+do \
+mkdir -p myredisdata/redis/node-${port}/conf
+touch myredisdata/redis/node-${port}/conf/redis.conf
+cat << EOF >myredisdata/redis/node-${port}/conf/redis.conf
+port 6379 
+bind 0.0.0.0
+cluster-enabled yes 
+cluster-config-file nodes.conf
+cluster-node-timeout 5000
+cluster-announce-ip 172.38.0.1${port}
+cluster-announce-port 6379
+cluster-announce-bus-port 16379
+appendonly yes
+EOF
+done
+
+for port in $(seq 1 6); \
+do \
+docker run -p 637${port}:6379 -p 1637${port}:16379 --name redis-${port} \
+    -v /Users/tom/MyDir/Docker/DockerContainers/myredisdata/redis/node-${port}/data:/data \
+    -v /Users/tom/MyDir/Docker/DockerContainers/myredisdata/redis/node-${port}/conf/redis.conf:/etc/redis/redis.conf \
+    -d --net redis --ip 172.38.0.1${port} redis:6.2.6 redis-server /etc/redis/redis.conf
+done
+
+docker run -p 6371:6379 -p 16371:16379 --name redis-1 \
+    -v /Users/tom/MyDir/Docker/DockerContainers/myredisdata/redis/node-1/data:/data \
+    -v /Users/tom/MyDir/Docker/DockerContainers/myredisdata/redis/node-1/conf/redis.conf:/etc/redis/redis.conf \
+    -d --net redis --ip 172.38.0.11 redis:6.2.6 redis-server /etc/redis/redis.conf
+
+redis-cli --cluster create 172.38.0.11:6379 172.38.0.12:6379 172.38.0.13:6379 172.38.0.14:6379 172.38.0.15:6379 172.38.0.16:6379 --cluster-replicas 1
+
+https://developer.aliyun.com/article/892646
+
+FROM java:8
+COPY *.jar /app.jar
+CMD ["--server.port=8080"]
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app.jar"]
+
+docker run -d -e TZ="Asia/Shanghai" -p 2181:2181 -p 2888:2888 -p 3888:3888 -p 8080:8080 -v /Users/tom/MyDir/Docker/DockerContainers/zookeeper/data:/data --name zookeeper --restart always zookeeper:3.5
+
+docker pull zookeeper:3.6.1
+docker run -d --restart=always --log-driver json-file --log-opt max-size=100m --log-opt max-file=2  --name zookeeper-server -p 2181:2181 -v /etc/localtime:/etc/localtime zookeeper:3.6.1
+
+docker pull bitnami/kafka:3.2
+docker run -d --name kafka-server --hostname kafka-server \
+    --network app-tier \
+    -e KAFKA_CFG_NODE_ID=0 \
+    -e KAFKA_CFG_PROCESS_ROLES=controller,broker \
+    -e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
+    -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
+    -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-server:9093 \
+    -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+    bitnami/kafka:3.2
+# docker run -d -p 8099:8080 -p 50099:50000 -v /usr/local/jenkins:/var/jenkins_home --name myjenkins jenkinsci/blueocean
